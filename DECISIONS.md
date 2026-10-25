@@ -63,4 +63,21 @@ This log tracks architectural and design decisions, assumptions, and trade-offs 
 - **Decision:** Updated `GET /api/requirements/:id` to distinguish between malformed identifier formats (HTTP 400 Bad Request with `{ success: false, message: "Invalid requirement ID", errors: [...] }`) and well-formed 24-character hex ObjectIds that simply do not exist in the collection (HTTP 404 Not Found).
 - **Rationale:** Aligns with RESTful best practices: client syntax/format errors are 4xx client errors (400), whereas valid queries returning empty results are resource missing errors (404).
 
+---
+
+## Phase 4: Frontend Wizard Architecture (Checkpoint A)
+
+### 1. Per-Step Modular Schema Validation
+- **Decision:** Split form validation into granular per-step Zod schemas in `frontend/lib/schemas.ts` (`eventBasicsSchema`, `plannerStep2Schema`, `plannerStep3Schema`, `performerStep2Schema`, `performerStep3Schema`, `crewStep2Schema`, `crewStep3Schema`).
+- **Rationale:** Enforces strict boundary validation at each step transition before proceeding to the next step, preventing invalid or incomplete partial state from propagating through the wizard.
+
+### 2. Config-Driven Dynamic Form Polymorphism
+- **Decision:** Implemented `stepConfig.ts` indexing `[Step2Component, Step3Component]` dynamically by `category` (`planner`, `performer`, `crew`).
+- **Rationale:** Decouples the wizard container from hardcoded conditional chains, making adding or updating category flows declarative and maintainable.
+
+### 3. State Persistence & Safe Category Invalidation
+- **Decision:** Used Zustand with `sessionStorage` persistence. If a user navigates back to Step 1 and selects a different category when category details already exist, a confirmation dialog triggers to warn that previous category details will be cleared.
+- **Rationale:** Prevents carrying over irrelevant polymorphic fields (e.g. performer DJ rider settings persisting when switching to a sound crew requirement) into the final submission payload.
+
+
 
