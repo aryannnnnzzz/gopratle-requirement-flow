@@ -17,11 +17,12 @@ export const errorHandler = (
     return;
   }
 
-  // Handle Mongoose CastError (e.g. invalid ObjectId format in URL param)
+  // Handle Mongoose CastError (e.g. invalid ObjectId format)
   if (err instanceof mongoose.Error.CastError || err.name === "CastError") {
-    res.status(404).json({
+    res.status(400).json({
       success: false,
-      message: "Requirement not found",
+      message: "Invalid requirement ID",
+      errors: [{ path: err.path || "id", message: "Invalid ObjectId format" }],
     });
     return;
   }

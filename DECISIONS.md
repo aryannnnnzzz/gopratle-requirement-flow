@@ -47,3 +47,20 @@ This log tracks architectural and design decisions, assumptions, and trade-offs 
 - **Decision:** Saved standardized payloads in `backend/samples/*.json` (`planner.json`, `performer.json`, `crew.json`, `invalid-mismatched.json`, `invalid-dates.json`).
 - **Rationale:** Allows immediate testing via PowerShell `Invoke-RestMethod` and standard `curl.exe -d @file.json` without shell escaping issues on Windows.
 
+---
+
+## Phase 3: Backend Automated Test Suite (Jest + Supertest + Memory Server)
+
+### 1. Zero-Touch Database Isolation
+- **Decision:** Tests run strictly using `mongodb-memory-server` and explicitly clear `process.env.MONGODB_URI` inside test setup.
+- **Rationale:** Ensures automated test runs can never contaminate or accidentally drop documents from the live Atlas development/production cluster, guaranteeing deterministic, isolated test runs across all environments and CI.
+
+### 2. Decoupled Express App Architecture (`app.ts` vs `index.ts`)
+- **Decision:** Separated Express configuration into `backend/src/app.ts` (exporting the Express application without calling `listen`) and `backend/src/index.ts` (handling environment configuration, database connection, and port binding).
+- **Rationale:** Enables Supertest to instantiate the application ephemeral in-process without occupying network ports or interfering with dev servers.
+
+### 3. Granular Error Status Codes for ID Resolution
+- **Decision:** Updated `GET /api/requirements/:id` to distinguish between malformed identifier formats (HTTP 400 Bad Request with `{ success: false, message: "Invalid requirement ID", errors: [...] }`) and well-formed 24-character hex ObjectIds that simply do not exist in the collection (HTTP 404 Not Found).
+- **Rationale:** Aligns with RESTful best practices: client syntax/format errors are 4xx client errors (400), whereas valid queries returning empty results are resource missing errors (404).
+
+

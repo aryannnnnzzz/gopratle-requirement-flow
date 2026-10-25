@@ -105,9 +105,10 @@ export const getRequirementById = async (
     const id = Array.isArray(rawId) ? rawId[0] : rawId;
 
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
-      res.status(404).json({
+      res.status(400).json({
         success: false,
-        message: "Requirement not found",
+        message: "Invalid requirement ID",
+        errors: [{ path: "id", message: "Invalid ObjectId format" }],
       });
       return;
     }
