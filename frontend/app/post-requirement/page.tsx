@@ -1,17 +1,21 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { useWizardStore, useWizardHydrated } from "../../store/wizardStore";
 import { Stepper } from "../../components/wizard/Stepper";
 import { EventBasics } from "../../components/steps/EventBasics";
+import { ReviewStep } from "../../components/wizard/ReviewStep";
+import { SuccessScreen } from "../../components/wizard/SuccessScreen";
 import { stepConfig } from "../../lib/stepConfig";
 import { categoryOptions, CategoryKey } from "../../lib/schemas";
+import { RequirementDocument } from "../../lib/api";
 import { ArrowLeft } from "lucide-react";
 
 export default function PostRequirementPage() {
   const hydrated = useWizardHydrated();
-  const { currentStep, category, prevStep } = useWizardStore();
+  const { currentStep, category, resetWizard } = useWizardStore();
+  const [submittedDoc, setSubmittedDoc] = useState<RequirementDocument | null>(null);
 
   if (!hydrated) {
     return (
@@ -26,7 +30,21 @@ export default function PostRequirementPage() {
 
   const categoryMeta = categoryOptions.find((c) => c.id === category);
 
+  const handlePostAnother = () => {
+    resetWizard();
+    setSubmittedDoc(null);
+  };
+
   const renderStep = () => {
+    if (submittedDoc) {
+      return (
+        <SuccessScreen
+          document={submittedDoc}
+          onPostAnother={handlePostAnother}
+        />
+      );
+    }
+
     if (currentStep === 1) {
       return <EventBasics />;
     }
@@ -47,22 +65,8 @@ export default function PostRequirementPage() {
       return <Step3Component />;
     }
 
-    // Step 4 Review placeholder for Checkpoint A
-    return (
-      <div className="w-full max-w-3xl mx-auto bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center">
-        <h2 className="text-xl font-bold text-slate-100 mb-2">Step 4: Review & Submit</h2>
-        <p className="text-sm text-slate-400 mb-6">
-          Ready to review requirement details for {categoryMeta?.title || "your event"}.
-        </p>
-        <button
-          type="button"
-          onClick={prevStep}
-          className="px-5 py-2.5 text-sm font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl"
-        >
-          Back to Step 3
-        </button>
-      </div>
-    );
+    // Step 4 Review & Submit
+    return <ReviewStep onSuccess={(doc) => setSubmittedDoc(doc)} />;
   };
 
   return (
@@ -77,16 +81,25 @@ export default function PostRequirementPage() {
             <ArrowLeft className="w-4 h-4" />
             Home
           </Link>
-          <div className="flex items-center gap-2 text-xs text-slate-400">
-            <span>GoPratle Requirement Flow</span>
+          <div className="flex items-center gap-4 text-xs">
+            <Link
+              href="/requirements"
+              className="text-slate-400 hover:text-indigo-400 font-medium transition-colors"
+            >
+              Browse Requirements
+            </Link>
+            <span className="text-slate-600">•</span>
+            <span className="text-slate-400">GoPratle Requirement Flow</span>
           </div>
         </div>
 
-        {/* Stepper Header */}
-        <Stepper
-          currentStep={currentStep}
-          categoryLabel={categoryMeta?.title}
-        />
+        {/* Stepper Header (hidden on success) */}
+        {!submittedDoc && (
+          <Stepper
+            currentStep={currentStep}
+            categoryLabel={categoryMeta?.title}
+          />
+        )}
 
         {/* Step Body */}
         <main>{renderStep()}</main>

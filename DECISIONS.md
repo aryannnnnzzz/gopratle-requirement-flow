@@ -87,5 +87,35 @@ This log tracks architectural and design decisions, assumptions, and trade-offs 
 - **Decision:** Initialized `category` strictly to empty string (`""`) in `wizardStore.ts` and `EventBasics.tsx`, removing the fallback to `"planner"`. Disabled the Continue button (`isNextDisabled={!selectedCategory}`) until a category is explicitly chosen.
 - **Rationale:** Prevents unintended pre-selection of the "Event Planner" flow and enforces user intent before unlocking downstream category-specific steps.
 
+---
+
+## Phase 4 Checkpoint B: Review, Submission, Resilience & List Feed
+
+### 1. Strict Payload Sanitization & Stripping (`buildRequirementPayload`)
+- **Decision:** Implemented a dedicated payload builder in `frontend/lib/payload.ts` that enforces the backend schema contract before sending:
+  - If `dateType === "single"`, `endDate` is stripped completely.
+  - Empty optional strings (`venue`, `theme`, `notes`, `technicalRequirements`) are omitted.
+  - Only category-specific fields are mapped into `details` based on `category`.
+- **Rationale:** The backend uses Zod `.strict()` schemas on `details` and payloads. Sending nullish or foreign category fields would fail validation.
+
+### 2. Formatted Multi-Section Review with Direct Step Jump
+- **Decision:** Step 4 groups data into three human-readable sections: Event Basics, Scope & Specifications, and Logistics, Schedule & Budget. Currency is formatted in INR (`Intl.NumberFormat`), dates are formatted to readable day-month-year strings, and booleans are rendered as descriptive pills. Each section features an "Edit" button that invokes `goToStep(n)`.
+- **Rationale:** Eliminates raw JSON dumping and provides an intuitive, high-confidence review interface for non-technical event organizers.
+
+### 3. Server Error Mapping & 503 Resilience
+- **Decision:** Implemented typed error handling via `ApiError` in `frontend/lib/api.ts`.
+  - HTTP 400 validation errors map `errors[].path` to actionable "(Jump to Step X)" buttons, guiding the user back to the exact step requiring correction.
+  - HTTP 503 (database unavailable) and network errors present an amber banner with an inline "Retry" action that resubmits without data loss.
+  - The submit button disables and displays an animated spinner while the request is in-flight to prevent duplicate submissions.
+
+### 4. Safe State Teardown on Success
+- **Decision:** When submission succeeds, `SuccessScreen` displays the MongoDB reference ID (with clipboard copy), category badge, and metadata summary. The "Post Another Requirement" CTA explicitly invokes `resetWizard()`, which resets the Zustand state and clears `sessionStorage`.
+- **Rationale:** Ensures future submissions start from a completely pristine state without remnants of previous event data.
+
+### 5. Paginated Category Feed (`/requirements`)
+- **Decision:** Built a responsive requirement feed at `/requirements` featuring category tabs (`All`, `Event Planners`, `Performers`, `Crew & Tech`), calling `GET /api/requirements?category=&page=&limit=`.
+- **Rationale:** Provides immediate visual proof that requirements are "clearly categorised" in MongoDB discriminators, complete with loading skeletons, empty states, and pagination controls.
+
+
 
 
