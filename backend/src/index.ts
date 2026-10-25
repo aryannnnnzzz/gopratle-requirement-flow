@@ -2,7 +2,10 @@ import express, { Request, Response } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import dotenv from "dotenv";
-import { connectDB } from "./config/db";
+import { connectDB, isDbConnected } from "./config/db";
+import { requireDbConnection } from "./middleware/dbCheck";
+import { errorHandler } from "./middleware/errorHandler";
+import requirementRoutes from "./routes/requirement.routes";
 
 dotenv.config();
 
@@ -15,7 +18,6 @@ app.use(helmet());
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps, curl, postman) or matching origin
       if (!origin || origin === CLIENT_ORIGIN || process.env.NODE_ENV !== "production") {
         callback(null, true);
       } else {
@@ -27,10 +29,20 @@ app.use(
 );
 app.use(express.json());
 
-// Health Check Endpoint
+// Health Check Endpoint (includes DB connection state)
 app.get("/health", (_req: Request, res: Response) => {
-  res.status(200).json({ status: "ok" });
+  res.status(200).json({
+    status: "ok",
+    db: isDbConnected() ? "connected" : "disconnected",
+  });
 });
+
+// API Routes with DB availability protection
+app.use("/api", requireDbConnection);
+app.use("/api/requirements", requirementRoutes);
+
+// Centralized Error Handler (must be registered after routes)
+app.use(errorHandler);
 
 // Start server
 const startServer = async () => {
@@ -42,7 +54,6 @@ const startServer = async () => {
   });
 };
 
-// Only start listening if run directly (allows importing in tests)
 if (process.env.NODE_ENV !== "test") {
   startServer();
 }

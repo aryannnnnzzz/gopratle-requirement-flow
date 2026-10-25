@@ -1,0 +1,20 @@
+{
+  "eventName": "Sharma Wedding Sangeet",
+  "eventType": "Wedding",
+  "dateType": "range",
+  "startDate": "2026-12-10",
+  "endDate": "2026-12-12",
+  "location": "Jaipur, Rajasthan",
+  "venue": "Rambagh Palace",
+  "category": "performer",
+  "details": {
+    "performerType": "DJ",
+    "genre": "Bollywood",
+    "performanceDurationMins": 120,
+    "numberOfPerformers": 1,
+    "equipmentProvidedByHost": false,
+    "technicalRequirements": "Pioneer CDJ-3000 console and dual 18-inch subwoofers required",
+    "budgetPerPerformance": 40000,
+    "travelAccommodationCovered": true
+  }
+}

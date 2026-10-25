@@ -1,0 +1,14 @@
+{
+  "eventName": "Mismatched Details Test",
+  "eventType": "Concert",
+  "dateType": "single",
+  "startDate": "2027-04-10",
+  "location": "Mumbai",
+  "category": "performer",
+  "details": {
+    "services": ["AV", "catering"],
+    "guestCount": 300,
+    "budgetMin": 10000,
+    "budgetMax": 20000
+  }
+}

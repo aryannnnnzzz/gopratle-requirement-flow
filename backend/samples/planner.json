@@ -1,0 +1,19 @@
+{
+  "eventName": "Grand Tech Summit 2027",
+  "eventType": "Corporate",
+  "dateType": "range",
+  "startDate": "2027-03-15",
+  "endDate": "2027-03-17",
+  "location": "Bengaluru, Karnataka",
+  "venue": "Bangalore International Exhibition Centre",
+  "category": "planner",
+  "details": {
+    "services": ["AV", "catering", "decor", "logistics", "photography"],
+    "guestCount": 1200,
+    "theme": "Future of AI & Sustainable Technology",
+    "budgetMin": 2500000,
+    "budgetMax": 4000000,
+    "planningDeadline": "2027-02-01",
+    "notes": "Requires high-bandwidth hybrid live streaming and VIP lounge catering."
+  }
+}

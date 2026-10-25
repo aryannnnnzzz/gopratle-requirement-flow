@@ -1,0 +1,15 @@
+{
+  "eventName": "Invalid Date Range Test",
+  "eventType": "Birthday",
+  "dateType": "range",
+  "startDate": "2027-05-20",
+  "endDate": "2027-05-18",
+  "location": "Delhi",
+  "category": "planner",
+  "details": {
+    "services": ["decor"],
+    "guestCount": 50,
+    "budgetMin": 50000,
+    "budgetMax": 100000
+  }
+}

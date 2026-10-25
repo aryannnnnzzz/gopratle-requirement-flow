@@ -23,3 +23,27 @@ This log tracks architectural and design decisions, assumptions, and trade-offs 
 ### 4. Frontend Framework Setup
 - **Decision:** Next.js (App Router) with TypeScript and Tailwind CSS as specified in the plan.
 - **Environment:** Configured `NEXT_PUBLIC_API_URL` in `.env.example` targeting `http://localhost:5000/api`.
+
+---
+
+## Phase 2: Backend Architecture & Data Layer
+
+### 1. Mongoose Discriminator Pattern
+- **Decision:** Implemented a single `requirements` collection with Mongoose discriminators (`PlannerRequirement`, `PerformerRequirement`, `CrewRequirement`) keyed by `category`.
+- **Rationale:** Discriminators allow each category to maintain its own strict schema for `details` while sharing base metadata (`eventName`, `eventType`, `startDate`, `endDate`, `location`, `venue`). This provides polymorphic storage with single-query cross-category filtering, pagination, and sorting on `createdAt`.
+- **Trade-off:** In Mongoose, creating through discriminator sub-models requires resolving the target model via `getModelForCategory(category)`.
+
+### 2. Fast-Fail DB Resilience (`bufferCommands: false` + 503 Guard)
+- **Decision:** Set `mongoose.set("bufferCommands", false)` and added a `requireDbConnection` middleware on all `/api` routes.
+- **Rationale:** By default, Mongoose buffers operations when disconnected, causing API requests to hang indefinitely until socket timeout. Disabling command buffering and explicitly returning HTTP 503 with standard JSON error shapes ensures fast, predictable failure modes.
+- **Assumption:** Health checks `/health` remain accessible (200 OK) with `{ status: "ok", db: "connected" | "disconnected" }` so uptime monitors can distinguish between app server liveness and database dependency health.
+
+### 3. Zod Discriminated Union & Strict Unknown Field Rejection
+- **Decision:** Modelled the API input as `z.discriminatedUnion("category", [plannerRaw, performerRaw, crewRaw])` with `.strict()` on all object levels, followed by `.superRefine()`.
+- **Rationale:** `z.discriminatedUnion` checks the discriminator key (`category`) first and routes to the exact schema, immediately catching mismatched payloads (e.g. `category: "performer"` with planner details). The `.strict()` mode ensures client payloads cannot inject unexpected or arbitrary fields.
+- **Trade-off:** `z.discriminatedUnion` requires direct `ZodObject` children in TypeScript; cross-field validations (such as `dateType === 'range'` requiring `endDate >= startDate` and `planningDeadline < startDate`) are attached via a unified `.superRefine()`.
+
+### 4. Reusable Sample Payloads for Windows/Multi-platform
+- **Decision:** Saved standardized payloads in `backend/samples/*.json` (`planner.json`, `performer.json`, `crew.json`, `invalid-mismatched.json`, `invalid-dates.json`).
+- **Rationale:** Allows immediate testing via PowerShell `Invoke-RestMethod` and standard `curl.exe -d @file.json` without shell escaping issues on Windows.
+

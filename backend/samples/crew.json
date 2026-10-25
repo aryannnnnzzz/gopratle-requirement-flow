@@ -1,0 +1,22 @@
+{
+  "eventName": "Neon Wave Music Festival",
+  "eventType": "Concert",
+  "dateType": "single",
+  "startDate": "2027-01-20",
+  "location": "Goa",
+  "venue": "Vagator Hilltop Arena",
+  "category": "crew",
+  "details": {
+    "roles": [
+      { "role": "Sound", "count": 4 },
+      { "role": "Lighting", "count": 3 },
+      { "role": "Stage", "count": 6 },
+      { "role": "Security", "count": 12 }
+    ],
+    "shiftHours": 12,
+    "experienceLevel": "Expert",
+    "dailyRate": 7500,
+    "callTime": "08:00",
+    "requiredCertifications": ["Rigging Level 2", "First Aid Certified"]
+  }
+}

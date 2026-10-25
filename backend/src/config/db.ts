@@ -1,12 +1,19 @@
 import mongoose from "mongoose";
 
+// Set bufferCommands to false to prevent operations from buffering when DB is down
+mongoose.set("bufferCommands", false);
+
+export const isDbConnected = (): boolean => {
+  return mongoose.connection.readyState === 1;
+};
+
 export const connectDB = async (): Promise<boolean> => {
   const uri = process.env.MONGODB_URI;
 
   if (!uri) {
     console.error(
       "\n[DB ERROR] MONGODB_URI environment variable is not defined.\n" +
-      "Please set MONGODB_URI in backend/.env (e.g. mongodb://localhost:27017/gopratle_requirements or your MongoDB Atlas URI).\n"
+      "Please set MONGODB_URI in backend/.env.\n"
     );
     return false;
   }
