@@ -61,7 +61,7 @@ export const useWizardStore = create<WizardState>()(
             location: eventData.location || "",
             venue: eventData.venue || "",
           },
-          category: (category as CategoryKey) || "planner",
+          category: (category as CategoryKey) || "",
         }));
       },
 

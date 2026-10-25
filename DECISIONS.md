@@ -79,5 +79,13 @@ This log tracks architectural and design decisions, assumptions, and trade-offs 
 - **Decision:** Used Zustand with `sessionStorage` persistence. If a user navigates back to Step 1 and selects a different category when category details already exist, a confirmation dialog triggers to warn that previous category details will be cleared.
 - **Rationale:** Prevents carrying over irrelevant polymorphic fields (e.g. performer DJ rider settings persisting when switching to a sound crew requirement) into the final submission payload.
 
+### 4. Hydration Safety & Input Synchronization Root-Cause Fixes
+- **Decision:** Configured `skipHydration: true` in Zustand persist options combined with a `useWizardHydrated()` hook guarding `/post-requirement`. Synchronized form inputs with strict defined values (`""` and explicit numeric fallbacks) using `values` binding in `react-hook-form`.
+- **Rationale:** Resolves Next.js / React 19 hydration mismatch warnings (where server pre-render had empty state while client rehydrated immediately with cached `sessionStorage` values) and eliminates uncontrolled-to-controlled input warnings.
+
+### 5. Strict Category Selection Gate (Step 1)
+- **Decision:** Initialized `category` strictly to empty string (`""`) in `wizardStore.ts` and `EventBasics.tsx`, removing the fallback to `"planner"`. Disabled the Continue button (`isNextDisabled={!selectedCategory}`) until a category is explicitly chosen.
+- **Rationale:** Prevents unintended pre-selection of the "Event Planner" flow and enforces user intent before unlocking downstream category-specific steps.
+
 
 

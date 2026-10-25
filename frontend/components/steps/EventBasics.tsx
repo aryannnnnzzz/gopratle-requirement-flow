@@ -44,7 +44,7 @@ export const EventBasics: React.FC = () => {
       endDate: event.endDate || "",
       location: event.location || "",
       venue: event.venue || "",
-      category: (category as CategoryKey) || "planner",
+      category: (category as CategoryKey) || ("" as any),
     },
   });
 
@@ -88,8 +88,10 @@ export const EventBasics: React.FC = () => {
           description="Tell us about the event and choose which type of professional requirement you want to post."
           currentStep={1}
           nextLabel="Continue to Specs"
+          isNextDisabled={!selectedCategory}
           onNext={handleSubmit(onSubmit)}
         >
+          <input type="hidden" {...register("category")} />
           <div className="space-y-6">
             {/* Event Name */}
             <div>
