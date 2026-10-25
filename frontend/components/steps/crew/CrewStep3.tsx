@@ -25,11 +25,11 @@ export const CrewStep3: React.FC = () => {
     formState: { errors },
   } = useForm<CrewStep3FormValues>({
     resolver: zodResolver(crewStep3Schema),
-    mode: "onChange",
-    defaultValues: {
-      shiftHours: details.shiftHours ?? 8,
+    mode: "onTouched",
+    values: {
+      shiftHours: typeof details.shiftHours === "number" ? details.shiftHours : 8,
       experienceLevel: details.experienceLevel || "Intermediate",
-      dailyRate: details.dailyRate ?? 3500,
+      dailyRate: typeof details.dailyRate === "number" ? details.dailyRate : 3500,
       callTime: details.callTime || "08:00",
       requiredCertifications: defaultCertString,
     },

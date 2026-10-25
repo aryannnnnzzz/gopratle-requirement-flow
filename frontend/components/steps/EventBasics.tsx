@@ -32,11 +32,11 @@ export const EventBasics: React.FC = () => {
     handleSubmit,
     watch,
     setValue,
-    formState: { errors, isValid },
+    formState: { errors },
   } = useForm<EventBasicsFormValues>({
     resolver: zodResolver(eventBasicsSchema),
-    mode: "onChange",
-    defaultValues: {
+    mode: "onTouched",
+    values: {
       eventName: event.eventName || "",
       eventType: (event.eventType as any) || "Corporate",
       dateType: event.dateType || "single",

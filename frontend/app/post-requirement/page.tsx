@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Link from "next/link";
-import { useWizardStore } from "../../store/wizardStore";
+import { useWizardStore, useWizardHydrated } from "../../store/wizardStore";
 import { Stepper } from "../../components/wizard/Stepper";
 import { EventBasics } from "../../components/steps/EventBasics";
 import { stepConfig } from "../../lib/stepConfig";
@@ -10,14 +10,10 @@ import { categoryOptions, CategoryKey } from "../../lib/schemas";
 import { ArrowLeft } from "lucide-react";
 
 export default function PostRequirementPage() {
-  const [mounted, setMounted] = useState(false);
+  const hydrated = useWizardHydrated();
   const { currentStep, category, prevStep } = useWizardStore();
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
+  if (!hydrated) {
     return (
       <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center">
         <div className="animate-pulse flex flex-col items-center gap-3">

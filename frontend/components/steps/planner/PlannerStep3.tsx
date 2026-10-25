@@ -25,10 +25,10 @@ export const PlannerStep3: React.FC = () => {
     formState: { errors },
   } = useForm<PlannerStep3FormValues>({
     resolver: zodResolver(schema),
-    mode: "onChange",
-    defaultValues: {
-      budgetMin: details.budgetMin ?? 50000,
-      budgetMax: details.budgetMax ?? 150000,
+    mode: "onTouched",
+    values: {
+      budgetMin: typeof details.budgetMin === "number" ? details.budgetMin : 50000,
+      budgetMax: typeof details.budgetMax === "number" ? details.budgetMax : 150000,
       planningDeadline: details.planningDeadline || "",
     },
   });

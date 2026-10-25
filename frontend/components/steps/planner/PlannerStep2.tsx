@@ -23,10 +23,10 @@ export const PlannerStep2: React.FC = () => {
     formState: { errors },
   } = useForm<PlannerStep2FormValues>({
     resolver: zodResolver(plannerStep2Schema),
-    mode: "onChange",
-    defaultValues: {
-      services: details.services || [],
-      guestCount: details.guestCount || 100,
+    mode: "onTouched",
+    values: {
+      services: Array.isArray(details.services) ? details.services : [],
+      guestCount: typeof details.guestCount === "number" ? details.guestCount : 100,
       theme: details.theme || "",
       notes: details.notes || "",
     },

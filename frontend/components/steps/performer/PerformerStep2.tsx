@@ -21,12 +21,12 @@ export const PerformerStep2: React.FC = () => {
     formState: { errors },
   } = useForm<PerformerStep2FormValues>({
     resolver: zodResolver(performerStep2Schema),
-    mode: "onChange",
-    defaultValues: {
+    mode: "onTouched",
+    values: {
       performerType: details.performerType || "DJ",
       genre: details.genre || "",
-      performanceDurationMins: details.performanceDurationMins || 60,
-      numberOfPerformers: details.numberOfPerformers || 1,
+      performanceDurationMins: typeof details.performanceDurationMins === "number" ? details.performanceDurationMins : 60,
+      numberOfPerformers: typeof details.numberOfPerformers === "number" ? details.numberOfPerformers : 1,
     },
   });
 

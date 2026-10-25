@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import { useEffect, useState } from "react";
 import { CategoryKey, EventBasicsFormValues } from "../lib/schemas";
 
 export interface EventData {
@@ -7,9 +8,9 @@ export interface EventData {
   eventType: string;
   dateType: "single" | "range";
   startDate: string;
-  endDate?: string;
+  endDate: string;
   location: string;
-  venue?: string;
+  venue: string;
 }
 
 export type AnyDetails = Record<string, any>;
@@ -50,17 +51,17 @@ export const useWizardStore = create<WizardState>()(
 
       setEventBasics: (data) => {
         const { category, ...eventData } = data;
-        set((state) => ({
+        set(() => ({
           event: {
-            eventName: eventData.eventName,
-            eventType: eventData.eventType,
-            dateType: eventData.dateType,
-            startDate: eventData.startDate,
+            eventName: eventData.eventName || "",
+            eventType: eventData.eventType || "Corporate",
+            dateType: eventData.dateType || "single",
+            startDate: eventData.startDate || "",
             endDate: eventData.endDate || "",
-            location: eventData.location,
+            location: eventData.location || "",
             venue: eventData.venue || "",
           },
-          category: category as CategoryKey,
+          category: (category as CategoryKey) || "planner",
         }));
       },
 
@@ -109,6 +110,7 @@ export const useWizardStore = create<WizardState>()(
     }),
     {
       name: "gopratle_wizard_storage",
+      skipHydration: true,
       storage: createJSONStorage(() => (typeof window !== "undefined" ? sessionStorage : {
         getItem: () => null,
         setItem: () => {},
@@ -117,3 +119,18 @@ export const useWizardStore = create<WizardState>()(
     }
   )
 );
+
+/**
+ * Hook to ensure client hydration finishes before rendering persisted values
+ */
+export const useWizardHydrated = (): boolean => {
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    // Manually trigger hydration from sessionStorage on client
+    useWizardStore.persist.rehydrate();
+    setHydrated(true);
+  }, []);
+
+  return hydrated;
+};

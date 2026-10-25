@@ -22,11 +22,11 @@ export const PerformerStep3: React.FC = () => {
     formState: { errors },
   } = useForm<PerformerStep3FormValues>({
     resolver: zodResolver(performerStep3Schema),
-    mode: "onChange",
-    defaultValues: {
-      budgetPerPerformance: details.budgetPerPerformance ?? 40000,
-      equipmentProvidedByHost: details.equipmentProvidedByHost ?? false,
-      travelAccommodationCovered: details.travelAccommodationCovered ?? true,
+    mode: "onTouched",
+    values: {
+      budgetPerPerformance: typeof details.budgetPerPerformance === "number" ? details.budgetPerPerformance : 40000,
+      equipmentProvidedByHost: Boolean(details.equipmentProvidedByHost),
+      travelAccommodationCovered: details.travelAccommodationCovered !== undefined ? Boolean(details.travelAccommodationCovered) : true,
       technicalRequirements: details.technicalRequirements || "",
     },
   });
