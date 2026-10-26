@@ -300,13 +300,19 @@ export const EventBasics: React.FC = () => {
               </div>
             </div>
 
-            {/* Category Selector Cards */}
             <div className="pt-2">
-              <label className="block text-sm font-medium text-slate-200 mb-2.5">
+              <label
+                id="category-group-label"
+                className="block text-sm font-medium text-slate-200 mb-2.5"
+              >
                 Select Requirement Category <span className="text-rose-400">*</span>
               </label>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div
+                role="radiogroup"
+                aria-labelledby="category-group-label"
+                className="grid grid-cols-1 md:grid-cols-3 gap-3"
+              >
                 {categoryOptions.map((cat) => {
                   const Icon = categoryIcons[cat.id as CategoryKey];
                   const isSelected = selectedCategory === cat.id;
@@ -315,8 +321,16 @@ export const EventBasics: React.FC = () => {
                     <button
                       key={cat.id}
                       type="button"
+                      role="radio"
+                      aria-checked={isSelected}
                       onClick={() => handleCategorySelect(cat.id as CategoryKey)}
-                      className={`relative p-4 rounded-xl text-left border-2 transition-all flex flex-col justify-between ${
+                      onKeyDown={(e) => {
+                        if (e.key === " " || e.key === "Enter") {
+                          e.preventDefault();
+                          handleCategorySelect(cat.id as CategoryKey);
+                        }
+                      }}
+                      className={`relative p-4 rounded-xl text-left border-2 transition-all flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
                         isSelected
                           ? "bg-indigo-950/50 border-indigo-500 shadow-md shadow-indigo-500/20 ring-2 ring-indigo-500/20"
                           : "bg-slate-950/50 border-slate-800 hover:border-slate-700 hover:bg-slate-900/60"
@@ -363,7 +377,7 @@ export const EventBasics: React.FC = () => {
                 })}
               </div>
               {errors.category && (
-                <p className="mt-2 text-xs text-rose-400">{errors.category.message}</p>
+                <p className="mt-2 text-xs text-rose-400" role="alert">{errors.category.message}</p>
               )}
             </div>
           </div>

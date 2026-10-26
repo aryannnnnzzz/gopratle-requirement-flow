@@ -21,7 +21,7 @@ export const PerformerStep3: React.FC = () => {
     setValue,
     formState: { errors },
   } = useForm<PerformerStep3FormValues>({
-    resolver: zodResolver(performerStep3Schema),
+    resolver: zodResolver(performerStep3Schema) as any,
     mode: "onTouched",
     values: {
       budgetPerPerformance: typeof details.budgetPerPerformance === "number" ? details.budgetPerPerformance : 40000,
@@ -89,8 +89,17 @@ export const PerformerStep3: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Equipment Toggle */}
             <div
+              role="checkbox"
+              tabIndex={0}
+              aria-checked={equipmentVal}
               onClick={() => setValue("equipmentProvidedByHost", !equipmentVal)}
-              className={`p-4 rounded-xl border cursor-pointer transition-all flex items-start gap-3 select-none ${
+              onKeyDown={(e) => {
+                if (e.key === " " || e.key === "Enter") {
+                  e.preventDefault();
+                  setValue("equipmentProvidedByHost", !equipmentVal);
+                }
+              }}
+              className={`p-4 rounded-xl border cursor-pointer transition-all flex items-start gap-3 select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
                 equipmentVal
                   ? "bg-indigo-950/40 border-indigo-500 ring-1 ring-indigo-500/30"
                   : "bg-slate-950/50 border-slate-800 hover:border-slate-700"
@@ -120,8 +129,17 @@ export const PerformerStep3: React.FC = () => {
 
             {/* Travel Toggle */}
             <div
+              role="checkbox"
+              tabIndex={0}
+              aria-checked={travelVal}
               onClick={() => setValue("travelAccommodationCovered", !travelVal)}
-              className={`p-4 rounded-xl border cursor-pointer transition-all flex items-start gap-3 select-none ${
+              onKeyDown={(e) => {
+                if (e.key === " " || e.key === "Enter") {
+                  e.preventDefault();
+                  setValue("travelAccommodationCovered", !travelVal);
+                }
+              }}
+              className={`p-4 rounded-xl border cursor-pointer transition-all flex items-start gap-3 select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
                 travelVal
                   ? "bg-indigo-950/40 border-indigo-500 ring-1 ring-indigo-500/30"
                   : "bg-slate-950/50 border-slate-800 hover:border-slate-700"

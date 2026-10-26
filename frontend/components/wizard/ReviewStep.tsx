@@ -121,44 +121,47 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({ onSuccess }) => {
     }
   };
 
-  const handleForceServerError = async () => {
-    setIsSubmitting(true);
-    setErrorBanner(null);
-    setFieldErrors([]);
-    setIs503OrNetwork(false);
+  const handleForceServerError =
+    process.env.NODE_ENV === "development"
+      ? async () => {
+          setIsSubmitting(true);
+          setErrorBanner(null);
+          setFieldErrors([]);
+          setIs503OrNetwork(false);
 
-    try {
-      // Send an intentionally invalid payload to test live backend Zod error handling
-      const invalidPayload: any = {
-        eventName: "A", // too short (min 3)
-        eventType: "Corporate",
-        dateType: "range",
-        startDate: "2027-03-10",
-        endDate: "2027-02-10", // endDate < startDate
-        location: "", // required
-        category: "planner",
-        details: {
-          services: [], // min 1 required
-          guestCount: 0, // min 1 required
-          budgetMin: 100000,
-          budgetMax: 50000, // max < min
-        },
-      };
+          try {
+            // Send an intentionally invalid payload to test live backend Zod error handling
+            const invalidPayload: any = {
+              eventName: "A", // too short (min 3)
+              eventType: "Corporate",
+              dateType: "range",
+              startDate: "2027-03-10",
+              endDate: "2027-02-10", // endDate < startDate
+              location: "", // required
+              category: "planner",
+              details: {
+                services: [], // min 1 required
+                guestCount: 0, // min 1 required
+                budgetMin: 100000,
+                budgetMax: 50000, // max < min
+              },
+            };
 
-      await createRequirement(invalidPayload);
-    } catch (err: any) {
-      if (err instanceof ApiError) {
-        setErrorBanner(`Backend Server Error (HTTP ${err.statusCode}): ${err.message}`);
-        if (err.errors && err.errors.length > 0) {
-          setFieldErrors(err.errors);
+            await createRequirement(invalidPayload);
+          } catch (err: any) {
+            if (err instanceof ApiError) {
+              setErrorBanner(`Backend Server Error (HTTP ${err.statusCode}): ${err.message}`);
+              if (err.errors && err.errors.length > 0) {
+                setFieldErrors(err.errors);
+              }
+            } else {
+              setErrorBanner(err.message || "An unexpected error occurred during submission.");
+            }
+          } finally {
+            setIsSubmitting(false);
+          }
         }
-      } else {
-        setErrorBanner(err.message || "An unexpected error occurred during submission.");
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+      : undefined;
 
   return (
     <div className="w-full max-w-3xl mx-auto space-y-6">
@@ -573,15 +576,17 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({ onSuccess }) => {
           </button>
 
           <div className="flex items-center gap-4">
-            <button
-              type="button"
-              onClick={handleForceServerError}
-              disabled={isSubmitting}
-              className="text-xs text-rose-400/80 hover:text-rose-300 underline font-medium cursor-pointer transition-colors"
-              title="Test real backend server error mapping"
-            >
-              Test Server Error
-            </button>
+            {process.env.NODE_ENV === "development" && handleForceServerError && (
+              <button
+                type="button"
+                onClick={handleForceServerError}
+                disabled={isSubmitting}
+                className="text-xs text-rose-400/80 hover:text-rose-300 underline font-medium cursor-pointer transition-colors"
+                title="Test real backend server error mapping"
+              >
+                Test Server Error
+              </button>
+            )}
 
             <button
               type="button"
