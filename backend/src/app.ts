@@ -7,18 +7,52 @@ import { errorHandler } from "./middleware/errorHandler";
 import requirementRoutes from "./routes/requirement.routes";
 
 const app = express();
-const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || "http://localhost:3000";
+// Helper to normalize origins by trimming and stripping trailing slashes
+const normalizeOrigin = (url: string): string => url.trim().replace(/\/+$/, "");
+
+// Parse allowed origins from CLIENT_ORIGIN (supports comma-separated list)
+const getAllowedOrigins = (): string[] => {
+  const envOrigins = process.env.CLIENT_ORIGIN;
+  if (envOrigins) {
+    return envOrigins
+      .split(",")
+      .map(normalizeOrigin)
+      .filter(Boolean);
+  }
+  // Only fallback to localhost in development, never in production
+  if (process.env.NODE_ENV !== "production") {
+    return ["http://localhost:3000"];
+  }
+  return [];
+};
 
 // Security & Parsing Middleware
 app.use(helmet());
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || origin === CLIENT_ORIGIN || process.env.NODE_ENV !== "production") {
-        callback(null, true);
-      } else {
-        callback(new Error(`Origin ${origin} not allowed by CORS`));
+      // Allow non-browser requests or same-origin (curl, health checks, server-to-server)
+      if (!origin) {
+        return callback(null, true);
       }
+
+      const normalizedOrigin = normalizeOrigin(origin);
+      const allowedOrigins = getAllowedOrigins();
+
+      // In development, allow localhost origins
+      if (
+        process.env.NODE_ENV !== "production" &&
+        (normalizedOrigin.startsWith("http://localhost:") ||
+          normalizedOrigin.startsWith("http://127.0.0.1:"))
+      ) {
+        return callback(null, true);
+      }
+
+      if (allowedOrigins.includes(normalizedOrigin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error(`Origin ${origin} not allowed by CORS`));
     },
     credentials: true,
   })

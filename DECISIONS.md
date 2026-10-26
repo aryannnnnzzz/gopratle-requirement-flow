@@ -154,11 +154,41 @@ This log tracks architectural and design decisions, assumptions, and trade-offs 
 
 ---
 
+## Phase 7: Deployment Readiness & Production Hardening
+
+### 1. Peer Dependency Resolution on Vercel (`.npmrc`)
+- **Decision:** Added `frontend/.npmrc` containing `legacy-peer-deps=true`.
+- **Rationale:** Ensures automated builds on Vercel do not fail on peer dependency version conflicts between `@types/node` and Vitest/Next.js plugins.
+
+### 2. Node Engine Specification
+- **Decision:** Added `"engines": { "node": ">=20" }` to both `frontend/package.json` and `backend/package.json`.
+- **Rationale:** Enforces modern Node.js runtime parity across local development machines, Vercel serverless build workers, and Render container hosts.
+
+### 3. Production Fast-Fail Guards (Database Connection)
+- **Decision:** Updated `connectDB()` in `backend/src/config/db.ts` and server startup in `backend/src/index.ts` to immediately terminate the process with code 1 (`process.exit(1)`) if `MONGODB_URI` is missing or configured with a `localhost`/`127.0.0.1` placeholder when `NODE_ENV === "production"`.
+- **Rationale:** Prevents Render web services from booting into an unhealthy half-state that silently returns 503 errors to users, triggering immediate deployment failure alerts on bad environment variable configurations.
+
+### 4. Resilient Multi-Origin CORS with Trailing Slash Normalization
+- **Decision:** Replaced static origin comparison in `backend/src/app.ts` with a dynamic parser that supports comma-separated origins, normalizes trailing slashes (`.replace(/\/+$/, "")`), and strictly restricts the `http://localhost:3000` fallback to non-production environments.
+- **Rationale:** Allows preview deployments (e.g. Vercel preview branch URLs) to be appended without code changes while preventing unauthorized cross-origin requests in production.
+
+### 5. Safe Frontend API URL Resolution
+- **Decision:** Refactored `getBaseUrl()` in `frontend/lib/api.ts` to throw a fatal runtime error in production if `NEXT_PUBLIC_API_URL` is undefined, while normalizing trailing slashes.
+- **Rationale:** Prevents client-side production bundles from silently attempting to hit `http://localhost:5000` on client devices.
+
+### 6. Gated Database Seeding Utility (`--confirm`)
+- **Decision:** Implemented `backend/scripts/seed.ts` inserting 2 realistic requirements per category (6 total) with future dates, authentic INR budgets, and major Indian cities, strictly gated behind the `--confirm` CLI flag.
+- **Rationale:** Provides an easy mechanism for evaluators to populate realistic demo data prior to recording without risk of accidental data insertion during automated tests or CI runs.
+
+---
+
 ## Phase 8: Documentation & Knowledge Sharing
 
-### 1. Unified Comprehensive README
-- **Decision:** Authored `README.md` containing end-to-end architecture diagrams, local setup commands, API request/response samples for all three categories, schema justification (why Mongoose discriminators), assumptions, known limitations, and future improvements.
+### 1. Unified Comprehensive README & Live Demo Placeholders
+- **Decision:** Authored `README.md` containing end-to-end architecture diagrams, live demo URLs, local setup commands, API request/response samples for all three categories, schema justification (why Mongoose discriminators), assumptions, known limitations, and future improvements.
 - **Rationale:** Provides evaluators and developers with an immediate, self-contained reference for running, testing, and reviewing the codebase.
+
+
 
 
 

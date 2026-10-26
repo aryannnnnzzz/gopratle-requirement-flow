@@ -48,8 +48,14 @@ export interface CreateRequirementPayload {
 }
 
 const getBaseUrl = (): string => {
-  if (process.env.NEXT_PUBLIC_API_URL) {
-    return process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, "");
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (apiUrl) {
+    return apiUrl.trim().replace(/\/+$/, "");
+  }
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "NEXT_PUBLIC_API_URL environment variable is required in production but was not provided."
+    );
   }
   return "http://localhost:5000/api";
 };

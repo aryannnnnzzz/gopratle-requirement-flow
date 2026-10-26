@@ -15,7 +15,24 @@ export const connectDB = async (): Promise<boolean> => {
       "\n[DB ERROR] MONGODB_URI environment variable is not defined.\n" +
       "Please set MONGODB_URI in backend/.env.\n"
     );
+    if (process.env.NODE_ENV === "production") {
+      console.error("[FATAL] MONGODB_URI is required in production. Exiting.\n");
+      process.exit(1);
+    }
     return false;
+  }
+
+  // Guard against localhost placeholder in production
+  if (
+    process.env.NODE_ENV === "production" &&
+    (uri.includes("localhost") || uri.includes("127.0.0.1") || uri.includes("0.0.0.0"))
+  ) {
+    console.error(
+      `\n[FATAL] In production, MONGODB_URI cannot point to a localhost placeholder.\n` +
+      `Provided: "${uri.replace(/\/\/.*@/, "//@***:***@")}"\n` +
+      `Please provide a valid remote MongoDB connection string (e.g. MongoDB Atlas cluster).\n`
+    );
+    process.exit(1);
   }
 
   try {
@@ -31,6 +48,10 @@ export const connectDB = async (): Promise<boolean> => {
       `Reason: ${message}\n` +
       "Check your connection string, ensure MongoDB service is running, or verify your Atlas IP whitelist and credentials.\n"
     );
+    if (process.env.NODE_ENV === "production") {
+      console.error("[FATAL] Database connection failed in production. Exiting.\n");
+      process.exit(1);
+    }
     return false;
   }
 };

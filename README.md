@@ -4,6 +4,16 @@ A production-grade, full-stack multi-step requirement posting application for ev
 
 ---
 
+## Live Demo
+
+- **Frontend Application (Vercel):** `https://<your-vercel-app>.vercel.app`
+- **Backend API Service (Render):** `https://<your-render-app>.onrender.com`
+- **Backend Health Check:** `https://<your-render-app>.onrender.com/health`
+
+> **Note on Render Free Tier Cold Starts:** The backend is deployed on Render's free web service tier. If the instance has been idle, the initial request may take ~30–50 seconds for the container to wake from sleep. Subsequent requests will respond with standard low latency.
+
+---
+
 ## 1. Project Overview
 
 - **Frontend:** Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, React Hook Form + Zod, Zustand with `sessionStorage` persistence.
@@ -195,6 +205,13 @@ classDiagram
    npm test
    ```
    *Runs 18 end-to-end integration tests using in-memory MongoDB (`mongodb-memory-server`) with zero external DB dependencies.*
+
+5. **(Optional) Seed sample requirements into the database:**
+   To populate the live database with 6 realistic event requirements (2 per category with realistic INR budgets and Indian cities) before testing or recording:
+   ```bash
+   npm run seed -- --confirm
+   ```
+   *Requires the explicit `--confirm` flag to prevent accidental execution.*
 
 ---
 
