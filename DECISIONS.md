@@ -116,6 +116,51 @@ This log tracks architectural and design decisions, assumptions, and trade-offs 
 - **Decision:** Built a responsive requirement feed at `/requirements` featuring category tabs (`All`, `Event Planners`, `Performers`, `Crew & Tech`), calling `GET /api/requirements?category=&page=&limit=`.
 - **Rationale:** Provides immediate visual proof that requirements are "clearly categorised" in MongoDB discriminators, complete with loading skeletons, empty states, and pagination controls.
 
+---
+
+## Phase 5: Polish & Accessibility
+
+### 1. Dev-Only Error Testing Button Gating
+- **Decision:** Gated the "Test Server Error" button in `ReviewStep.tsx` strictly behind `process.env.NODE_ENV === "development"` with `handleForceServerError` defined conditionally.
+- **Rationale:** Ensures debugging and demo testing triggers never ship to production environments or confuse end users in live deployments.
+
+### 2. Category Selection ARIA & Keyboard Navigation
+- **Decision:** Upgraded category selection cards in `EventBasics.tsx` to use `role="radiogroup"` with `aria-labelledby="category-group-label"`. Each card features `role="radio"`, `aria-checked`, explicit Space/Enter `onKeyDown` handlers, and `focus-visible:ring-2 focus-visible:ring-indigo-500` styles.
+- **Rationale:** Provides screen-reader and full keyboard navigation compliance according to WAI-ARIA authoring practices.
+
+### 3. Modal Focus Trap & Accessible Teardown
+- **Decision:** Rewrote `CategoryChangeModal.tsx` using `useRef` hooks to automatically focus the "Cancel" action upon modal mount, trap Tab/Shift+Tab focus between Cancel and Confirm buttons, listen for the `Escape` key, and support backdrop click cancellation.
+- **Rationale:** Prevents keyboard focus from escaping into underlying inert background elements while the modal is open.
+
+### 4. Per-Route Layout Metadata & Favicon
+- **Decision:** Created route-level `layout.tsx` files for `/post-requirement` and `/requirements` with explicit descriptive `title` and `description` metadata, and added `app/icon.svg` as a brand favicon.
+- **Rationale:** Ensures clean browser tab titles, social preview cards, and eliminates browser 404 favicon requests without requiring client-side `next/head` hacks.
+
+---
+
+## Phase 6: Frontend Automated Test Suite (Vitest + React Testing Library)
+
+### 1. Vitest over Jest for Next.js 16 + React 19
+- **Decision:** Adopted Vitest v5 with `@vitejs/plugin-react`, `jsdom`, and `@testing-library/react` configured via `vitest.config.mts`.
+- **Rationale:** Vitest natively supports modern ESM, Next.js path aliases (`@/*`), and TSX transformations without needing the heavy Babel or ts-jest transformation pipeline required by Jest in Next.js 16.
+
+### 2. Upgraded Resolver Compatibility (`@hookform/resolvers@6`)
+- **Decision:** Upgraded `@hookform/resolvers` to version 6 to fully support Zod 4 error structures (`error.issues` instead of Zod 3's `error.errors`). Cast resolvers in `useForm` options to preserve strict TypeScript type-checking on form payloads across numeric coercions.
+- **Rationale:** Resolves unhandled runtime rejections where earlier resolver versions threw unexpected errors on Zod 4 issue schemas.
+
+### 3. Multi-Scenario Wizard Test Suite
+- **Decision:** Implemented 13 automated tests covering payload generation (single vs range dates, optional stripping, certifications array mapping), Step 1 input validation & category button gating, Step 2 field rendering across all 3 categories, category switch confirmation and details reset, and Review step submissions (success, 400 validation error mapping, network failure retry).
+- **Rationale:** Guarantees critical form boundaries, state transitions, and API error mappings remain regression-free.
+
+---
+
+## Phase 8: Documentation & Knowledge Sharing
+
+### 1. Unified Comprehensive README
+- **Decision:** Authored `README.md` containing end-to-end architecture diagrams, local setup commands, API request/response samples for all three categories, schema justification (why Mongoose discriminators), assumptions, known limitations, and future improvements.
+- **Rationale:** Provides evaluators and developers with an immediate, self-contained reference for running, testing, and reviewing the codebase.
+
+
 
 
 
