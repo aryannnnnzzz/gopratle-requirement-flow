@@ -24,7 +24,7 @@ export const CrewStep3: React.FC = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<CrewStep3FormValues>({
-    resolver: zodResolver(crewStep3Schema),
+    resolver: zodResolver(crewStep3Schema) as any,
     mode: "onTouched",
     values: {
       shiftHours: typeof details.shiftHours === "number" ? details.shiftHours : 8,

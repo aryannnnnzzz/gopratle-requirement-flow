@@ -29,7 +29,7 @@ export const CrewStep2: React.FC = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<CrewStep2FormValues>({
-    resolver: zodResolver(crewStep2Schema),
+    resolver: zodResolver(crewStep2Schema) as any,
     mode: "onTouched",
     defaultValues: {
       roles: initialRoles as any,

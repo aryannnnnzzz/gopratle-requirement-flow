@@ -24,7 +24,7 @@ export const PlannerStep3: React.FC = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<PlannerStep3FormValues>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as any,
     mode: "onTouched",
     values: {
       budgetMin: typeof details.budgetMin === "number" ? details.budgetMin : 50000,

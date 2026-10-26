@@ -22,7 +22,7 @@ export const PlannerStep2: React.FC = () => {
     setValue,
     formState: { errors },
   } = useForm<PlannerStep2FormValues>({
-    resolver: zodResolver(plannerStep2Schema),
+    resolver: zodResolver(plannerStep2Schema) as any,
     mode: "onTouched",
     values: {
       services: Array.isArray(details.services) ? details.services : [],

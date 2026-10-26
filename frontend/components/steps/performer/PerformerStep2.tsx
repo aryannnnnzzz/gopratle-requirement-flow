@@ -20,7 +20,7 @@ export const PerformerStep2: React.FC = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<PerformerStep2FormValues>({
-    resolver: zodResolver(performerStep2Schema),
+    resolver: zodResolver(performerStep2Schema) as any,
     mode: "onTouched",
     values: {
       performerType: details.performerType || "DJ",
