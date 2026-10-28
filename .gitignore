@@ -33,3 +33,7 @@ coverage/
 Thumbs.db
 .vscode/
 .idea/
+
+# Internal planning docs (kept locally, never committed)
+DECISIONS.md
+IMPLEMENTATION_PLAN.md
