@@ -343,6 +343,66 @@ describe("ReviewStep submission handling", () => {
     });
   });
 
+  it("resets the store and clears sessionStorage immediately after a successful submit", async () => {
+    // Pre-populate the store and sessionStorage with a "stale draft" so we can
+    // verify both are wiped the moment the API returns success – before the
+    // caller ever receives onSuccess.
+    useWizardStore.setState({
+      currentStep: 4,
+      event: readyEvent,
+      category: "planner",
+      details: readyPlannerDetails,
+    });
+    // Write a sentinel into sessionStorage (Zustand persist would do this in
+    // a real browser; we do it manually so the test can confirm it is removed).
+    sessionStorage.setItem(
+      "gopratle_wizard_storage",
+      JSON.stringify({ state: { currentStep: 4, category: "planner" } })
+    );
+
+    const mockResponseDoc = {
+      _id: "aabbcc112233445566778899",
+      ...readyEvent,
+      category: "planner",
+      details: readyPlannerDetails,
+      createdAt: "2026-10-28T10:00:00.000Z",
+      updatedAt: "2026-10-28T10:00:00.000Z",
+    };
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        status: 201,
+        json: async () => ({ success: true, data: mockResponseDoc }),
+      })
+    );
+
+    // Capture the store state at the moment onSuccess is called.
+    let storeAtSuccessTime: ReturnType<typeof useWizardStore.getState> | null = null;
+    let sessionStorageAtSuccessTime: string | null = "not-yet-checked";
+    const onSuccess = vi.fn().mockImplementation(() => {
+      storeAtSuccessTime = useWizardStore.getState();
+      sessionStorageAtSuccessTime = sessionStorage.getItem("gopratle_wizard_storage");
+    });
+
+    const { ReviewStep } = await import("../components/wizard/ReviewStep");
+    render(<ReviewStep onSuccess={onSuccess} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /submit requirement/i }));
+
+    await waitFor(() => expect(onSuccess).toHaveBeenCalledTimes(1));
+
+    // Store must be reset to initial values at the time onSuccess fires.
+    expect(storeAtSuccessTime!.currentStep).toBe(1);
+    expect(storeAtSuccessTime!.category).toBe("");
+    expect(storeAtSuccessTime!.event.eventName).toBe("");
+    expect(storeAtSuccessTime!.details).toEqual({});
+
+    // sessionStorage entry must have been removed before onSuccess.
+    expect(sessionStorageAtSuccessTime).toBeNull();
+  });
+
   it("displays server validation error message and field path details on HTTP 400 failure", async () => {
     useWizardStore.setState({
       event: readyEvent,

@@ -99,6 +99,10 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({ onSuccess }) => {
     try {
       const payload = buildRequirementPayload(event, category as CategoryKey, details);
       const createdDoc = await createRequirement(payload);
+      // Reset store and sessionStorage immediately on success so that any
+      // subsequent navigation back to /post-requirement starts fresh (Step 1),
+      // regardless of how the user leaves the success screen.
+      useWizardStore.getState().resetWizard();
       onSuccess(createdDoc);
     } catch (err: any) {
       if (err instanceof ApiError) {

@@ -14,7 +14,14 @@ import { ArrowLeft } from "lucide-react";
 
 export default function PostRequirementPage() {
   const hydrated = useWizardHydrated();
-  const { currentStep, category, resetWizard } = useWizardStore();
+  // After a successful submit the store is reset (step → 1, category → ""),
+  // so we only need to read currentStep / category for the wizard flow.
+  const { currentStep, category } = useWizardStore();
+  // submittedDoc is kept in React local state. It is populated by ReviewStep
+  // AFTER the store has already been reset, so the success screen renders
+  // from response data, never from stale store values.
+  // If the user refreshes while on the success screen, submittedDoc is null
+  // (local state is gone) → they land on a fresh Step 1, which is safe.
   const [submittedDoc, setSubmittedDoc] = useState<RequirementDocument | null>(null);
 
   if (!hydrated) {
@@ -31,7 +38,8 @@ export default function PostRequirementPage() {
   const categoryMeta = categoryOptions.find((c) => c.id === category);
 
   const handlePostAnother = () => {
-    resetWizard();
+    // Store is already reset (done in ReviewStep on API success).
+    // Just clear the local doc so the wizard resets to Step 1.
     setSubmittedDoc(null);
   };
 
