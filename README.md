@@ -14,6 +14,22 @@ A production-grade, full-stack multi-step requirement posting application for ev
 
 ---
 
+## Screenshots
+
+| Landing | Step 1: Event Basics |
+|---|---|
+| ![Landing](docs/screenshots/01-landing.png) | ![Step 1](docs/screenshots/02-step1-basics.png) |
+
+| Step 2: Crew roles | Step 4: Review |
+|---|---|
+| ![Crew step](docs/screenshots/03-step2-crew.png) | ![Review](docs/screenshots/04-review.png) |
+
+| Success | Requirements feed |
+|---|---|
+| ![Success](docs/screenshots/05-success.png) | ![Feed](docs/screenshots/06-requirements-feed.png) |
+
+---
+
 ## 1. Project Overview
 
 - **Frontend:** Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, React Hook Form + Zod, Zustand with `sessionStorage` persistence.
@@ -30,6 +46,8 @@ A production-grade, full-stack multi-step requirement posting application for ev
 ```
 /
 ├── README.md                      # Comprehensive project documentation
+├── docs/
+│   └── screenshots/               # README screenshots
 ├── backend/                       # Express + TypeScript API service
 │   ├── src/
 │   │   ├── app.ts                 # Express application setup & middleware (Supertest-ready)
@@ -152,6 +170,10 @@ classDiagram
     BaseRequirement <|-- CrewRequirement : category = "crew"
 ```
 
+**Stored document in MongoDB Atlas (filtered by `category: "crew"`):**
+
+![Atlas document](docs/screenshots/07-atlas-document.png)
+
 #### Key Rationale:
 1. **Polymorphic Storage with Single-Query Efficiency:** Common event metadata (`eventName`, `eventType`, `startDate`, `location`, `createdAt`) is indexed uniformly. The `/requirements` feed can fetch, sort, and paginate all requirements in a single query across categories, or filter by category (`{ category }`) using the same compound index `{ category: 1, createdAt: -1 }`.
 2. **Schema Integrity per Category:** Unlike a generic unstructured `details: Object` field, each discriminator model (`PlannerRequirement`, `PerformerRequirement`, `CrewRequirement`) enforces strict Mongoose sub-schema rules, required fields, and validation logic.
@@ -184,7 +206,7 @@ classDiagram
    Configure the following variables in `.env`:
    ```env
    PORT=5000
-   MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/gopratle?retryWrites=true&w=majority
+   MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/gopratle_requirements?retryWrites=true&w=majority
    CLIENT_ORIGIN=http://localhost:3000
    ```
 
@@ -574,7 +596,7 @@ All endpoints return predictable, standardized JSON error responses:
 
 ---
 
-## 8. Known Limitations (Section 8 of Spec)
+## 8. Known Limitations
 
 1. **Anonymous Submissions:** There is currently no authentication or user session system; requirements are posted anonymously without author ownership.
 2. **No Rate Limiting:** The backend currently does not enforce rate limiting or captcha protection against spam submissions.
@@ -585,7 +607,7 @@ All endpoints return predictable, standardized JSON error responses:
 
 ---
 
-## 9. Future Improvements (Section 9 of Spec)
+## 9. Future Improvements
 
 1. **Authentication & User Profiles:** Introduce NextAuth.js or Clerk on the frontend and JWT verification middleware on the backend to allow organizers and talent to manage their listings.
 2. **Server-Side Draft Auto-Save:** Persist in-progress drafts to a `drafts` collection tied to user accounts.
