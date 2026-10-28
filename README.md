@@ -6,9 +6,9 @@ A production-grade, full-stack multi-step requirement posting application for ev
 
 ## Live Demo
 
-- **Frontend Application (Vercel):** `https://<your-vercel-app>.vercel.app`
-- **Backend API Service (Render):** `https://<your-render-app>.onrender.com`
-- **Backend Health Check:** `https://<your-render-app>.onrender.com/health`
+- **Frontend Application (Vercel):** https://gopratle-requirement-flow-beryl.vercel.app
+- **Backend API Service (Render):** https://gopratle-backend-dxb4.onrender.com
+- **Backend Health Check:** https://gopratle-backend-dxb4.onrender.com/health
 
 > **Note on Render Free Tier Cold Starts:** The backend is deployed on Render's free web service tier. If the instance has been idle, the initial request may take ~30–50 seconds for the container to wake from sleep. Subsequent requests will respond with standard low latency.
 
@@ -30,8 +30,6 @@ A production-grade, full-stack multi-step requirement posting application for ev
 ```
 /
 ├── README.md                      # Comprehensive project documentation
-├── DECISIONS.md                   # Architectural decisions, trade-offs, and design rationale
-├── IMPLEMENTATION_PLAN.md         # Detailed specification & execution plan
 ├── backend/                       # Express + TypeScript API service
 │   ├── src/
 │   │   ├── app.ts                 # Express application setup & middleware (Supertest-ready)
